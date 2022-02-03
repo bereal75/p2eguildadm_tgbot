@@ -1,0 +1,26 @@
+Hi Shogun
+
+Find below a list with the commands you can use in this bot\.
+
+/help		\-	This menu
+/start       \-	This menu
+
+This is the very command you are looking at right now, which returns a list of all the known commands\.
+
+/konichiwa 	\- Greet the bot
+
+This bot is just being friendly\. Give me a break :\-\)
+
+/signup		\- Signup for the guild and register in the guild database
+
+Assists you in signing up to the guild
+
+/wallet     \- wallet administration
+
+Assist you in administring your wallets \(list, register, remove\)
+
+/whoami 	\- In case you forgot your name
+
+Makes the bot have a look in the the dcguild database to find your file\. If the bot can find you, he will return your name\.
+
+/quit		\- Quit the guild and make the bot remove your name from the database\.
