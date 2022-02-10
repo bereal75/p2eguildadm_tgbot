@@ -7,11 +7,14 @@ from typing import Optional
 import requests
 import json
 import process_person, process_wallet
+import gamelog
 from config import settings
 
 api_key = settings.tg_api_key
 bot = telebot.TeleBot(api_key)
 
+bot_user = {}
+# wallet_dict = {0: {'walletownerid': 0, 'alias': 'n/a', 'walletaddress': 'n/a'}}
 wallet_dict = {}
 
 # TODO implementing logging
@@ -69,6 +72,12 @@ def signup(message):
         bot.reply_to(message, f"You have already signed up to this guild!!\n So let's rather say: Welcome back, {message.from_user.first_name}.\nHave a look at /wallet now.\n")
          
 
+# latest gamelog
+@bot.message_handler(commands=['latest'])
+def latest(message):
+    bot.reply_to(message, gamelog.get_latest())
+
+
 
 
 # quit
@@ -119,8 +128,11 @@ def query_handler(call):
     elif call.data == '2':
         wallet_markup = telebot.types.InlineKeyboardMarkup()
         wallet_markup.add(telebot.types.InlineKeyboardButton(text='cancel', callback_data=99))
-        wallet_dict["walletownerid"]=cid
+        wallet_dict[cid] = {}
+        wallet_dict[cid]["walletownerid"]=cid
         print(wallet_dict)
+        print("current cid:")
+        print(wallet_dict[cid])
         sent = bot.send_message(call.message.chat.id, "Enter alias", reply_markup=wallet_markup)
         bot.register_next_step_handler(sent,get_alias)
 
@@ -159,22 +171,22 @@ def query_handler(call):
 
 def get_alias(message):
     alias = message.text
-    wallet_dict["alias"]=alias
+    wallet_dict[message.chat.id]["alias"]=alias
     sent = bot.send_message(message.chat.id,"Enter walletaddress.")
     bot.register_next_step_handler(sent,get_walletaddress)
 
 
 def get_walletaddress(message):
     walletaddress = message.text
-    wallet_dict["walletaddress"]=walletaddress
+    wallet_dict[message.chat.id]["walletaddress"]=walletaddress
     print(wallet_dict)
     bot.send_message(message.chat.id,"storing data...")
-    wallet_register_result = process_wallet.post_wallet(wallet_dict["walletownerid"], wallet_dict["alias"], wallet_dict["walletaddress"])
+    wallet_register_result = process_wallet.post_wallet(wallet_dict[message.chat.id]["walletownerid"], wallet_dict[message.chat.id]["alias"], wallet_dict[message.chat.id]["walletaddress"])
     print(wallet_register_result)
     if wallet_register_result == "created":
-        bot.send_message(wallet_dict["walletownerid"], 'Wallet has been registered.')
+        bot.send_message(wallet_dict[message.chat.id]["walletownerid"], 'Wallet has been registered.')
     elif wallet_register_result == "failed":
-        bot.send_message(wallet_dict["walletownerid"], 'Registering wallet failed.')
+        bot.send_message(wallet_dict[message.chat.id]["walletownerid"], 'Registering wallet failed.')
     
     wallet_markup = telebot.types.InlineKeyboardMarkup()
 
